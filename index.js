@@ -12,6 +12,7 @@ const connectDB = async () => {
       await mongoose.connect('mongodb+srv://loanhtp:kem27102000@cluster0.sysjt.mongodb.net/?retryWrites=true&w=majority', {
         useNewUrlParser: true,
         useUnifiedTopology: true,
+        ignoreUndefined: true,
       })
       console.log('MongoDB connected')
     } catch(error) {
@@ -27,6 +28,9 @@ const startApolloServer = async (typeDefs,resolvers) => {
         context: () => ({mongoDataMethods})
     })
     const app = express()
+    let bodyParser = require('body-parser');
+    app.use(bodyParser.json({limit: '50mb'}));
+    app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
     await server.start();
     server.applyMiddleware({ app, path: '/api/graphql' });
     await new Promise(resolve => app.listen({ port: 4000 }, resolve));
