@@ -259,6 +259,57 @@ const typeDefs = gql `
     updatedAt: String,
     deletedAt: String,
   }
+  type ProductsOrdered {
+    id: ID!,
+    productId: String!,
+    name: String!,
+    color: String!,
+    quantity: Int!,
+    price: Int!,
+    imageKey: String!,
+    totalPayment: Int!,
+    userId: String!,
+    orderId: String!,
+    createdAt: String!,
+    updatedAt: String,
+    deletedAt: String,
+  }
+  type Order {
+    id: ID!,
+    orderId: String!,
+    receiverName: String!,
+    address: String!,
+    email: String!,
+    phoneNumber: String!,
+    createdBy: User!,
+    status: String!,
+    paymentMethod: String!,
+    userNote: String,
+    transferFee: Int!,
+    totalPaymentWithoutShipment: Int!,
+    totalPayment: Int!,
+    products: [ProductsOrdered]
+    createdAt: String!,
+    updatedAt: String,
+    deletedAt: String,
+  }
+  input OrderInput {
+    orderId: String!,
+    receiverName: String!,
+    address: String!,
+    email: String!,
+    phoneNumber: String!,
+    userId: String!,
+    status: String!,
+    paymentMethod: String!,
+    userNote: String,
+    transferFee: Int!,
+    totalPaymentWithoutShipment: Int!,
+    totalPayment: Int!,
+    productsId: [String],
+    createdAt: String!,
+    updatedAt: String,
+  }
   type Query {
     users(userInput: UserInput, skip: Int, take: Int, orderBy: UserOrderByInput): [User]
     user(id: ID!): User
@@ -290,6 +341,8 @@ const typeDefs = gql `
     createBannerImage(urlImage: String!): BannerImage
     addProductToCart(productsAddedToCartInput: ProductsAddedToCartInput!): ProductsAddedToCart
     updateCart(id: ID!, quantity: Int!, totalPayment: Int!, updatedAt: String): ProductsAddedToCart
+    deleteProductFromCart(id: ID!): Boolean
+    createOrder(orderInput: OrderInput!): Order
   }
 `
 module.exports = typeDefs

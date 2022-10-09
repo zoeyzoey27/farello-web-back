@@ -38,6 +38,14 @@ const resolvers = {
          return await mongoDataMethods.getUserById(userId)
        }
     },
+    Order: {
+      createdBy: async ({userId}, _args, {mongoDataMethods}) => {
+         return await mongoDataMethods.getUserById(userId)
+       },
+      products: async ({id}, _args, {mongoDataMethods}) => {
+         return await mongoDataMethods.getProductsOrdered(id)
+      }
+    },
     Mutation: {
         registerUser: async (_parent, {userRegisterInput}, {mongoDataMethods}) => await mongoDataMethods.registerUser(userRegisterInput),
         loginUser: async (_parent, {loginInput}, {mongoDataMethods}) => await mongoDataMethods.loginUser(loginInput),
@@ -56,6 +64,8 @@ const resolvers = {
         createBannerImage: async (_parent, args, {mongoDataMethods}) => await mongoDataMethods.createBannerImage(args),
         addProductToCart: async (_parent, {productsAddedToCartInput}, {mongoDataMethods}) => await mongoDataMethods.addProductToCart(productsAddedToCartInput),
         updateCart: async (_parent, args, {mongoDataMethods}) => await mongoDataMethods.updateCart(args),
+        deleteProductFromCart: async (_parent, {id}, {mongoDataMethods}) => await mongoDataMethods.deleteProductFromCart(id),
+        createOrder: async (_parent, {orderInput}, {mongoDataMethods}) => await mongoDataMethods.createOrder(orderInput),
     }
 }
 module.exports = resolvers

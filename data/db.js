@@ -4,6 +4,8 @@ const Product = require('../models/Product')
 const Admin = require('../models/Admin')
 const User = require('../models/User')
 const ProductsAddedToCart = require('../models/ProductsAddedToCart')
+const ProductsOrdered = require('../models/ProductsOrdered')
+const Order = require('../models/Order')
 const { ApolloError } = require('apollo-server-errors')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
@@ -67,6 +69,7 @@ const mongoDataMethods = {
       const { id, quantity, totalPayment, updatedAt } = args
       return await ProductsAddedToCart.findByIdAndUpdate(id, {quantity, totalPayment, updatedAt}, {new: true})
     },
+    getProductsOrdered: async id => await ProductsOrdered.find({orderId: id}),
     registerAdmin: async adminRegisterInput => {
        const { 
          fullName, 
@@ -308,6 +311,51 @@ const mongoDataMethods = {
          })
          return await newProductAdded.save()
        }
+    },
+    deleteProductFromCart: async id => {
+      await ProductsAddedToCart.findByIdAndDelete(id)
+      return true
+    },
+    createOrder: async OrderInput => {
+       const newOrder = new Order({
+          orderId: OrderInput.orderId,
+          receiverName: OrderInput.receiverName,
+          address: OrderInput.address,
+          email: OrderInput.email,
+          phoneNumber: OrderInput.phoneNumber,
+          userId: OrderInput.userId,
+          userNote: OrderInput.userNote,
+          status: OrderInput.status,
+          paymentMethod: OrderInput.paymentMethod,
+          transferFee: OrderInput.transferFee,
+          totalPayment: OrderInput.totalPayment,
+          totalPaymentWithoutShipment: OrderInput.totalPaymentWithoutShipment,
+          createdAt: OrderInput.createdAt,
+          updatedAt: OrderInput.updatedAt,
+       })
+       const productsAdded = await ProductsAddedToCart.find({userId: OrderInput.userId})
+       const productsId = []
+       if (productsAdded.length >0) {
+          for (let i = 0; i<productsAdded.length; i++) {
+            const newProductOrdered = new ProductsOrdered({
+              productId: productsAdded[i].productId,
+              name: productsAdded[i].name,
+              color: productsAdded[i].color,
+              quantity: productsAdded[i].quantity,
+              price: productsAdded[i].price,
+              totalPayment: productsAdded[i].totalPayment,
+              imageKey: productsAdded[i].imageKey,
+              userId: productsAdded[i].userId,
+              orderId: newOrder._id.toString(),
+              createdAt: OrderInput.createdAt,
+              updatedAt: OrderInput.updatedAt,
+            })
+            await newProductOrdered.save()
+            productsId.push(newProductOrdered._id.toString())
+            }
+       }
+       newOrder.productsId = productsId
+       return await newOrder.save()
     }
 
 }
