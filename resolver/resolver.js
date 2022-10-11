@@ -22,6 +22,10 @@ const resolvers = {
            await mongoDataMethods.getBannerImagesById(id),
         getProductsAddedToCart: async (_parent, {userId}, {mongoDataMethods}) =>
            await mongoDataMethods.getProductsAddedToCart(userId),
+        orders: async (_parent, {orderSearchInput, skip, take, orderBy}, {mongoDataMethods}) => 
+           await mongoDataMethods.getAllOrders(orderSearchInput, skip, take, orderBy),
+        order: async (_parent, {id}, {mongoDataMethods}) =>
+           await mongoDataMethods.getOrderById(id),
     },
     Product: {
         category: async ({categoryId}, _args, {mongoDataMethods}) => {
@@ -66,6 +70,7 @@ const resolvers = {
         updateCart: async (_parent, args, {mongoDataMethods}) => await mongoDataMethods.updateCart(args),
         deleteProductFromCart: async (_parent, {id}, {mongoDataMethods}) => await mongoDataMethods.deleteProductFromCart(id),
         createOrder: async (_parent, {orderInput}, {mongoDataMethods}) => await mongoDataMethods.createOrder(orderInput),
+        updateOrderStatus: async (_parent, args, {mongoDataMethods}) => await mongoDataMethods.updateOrderStatus(args),
     }
 }
 module.exports = resolvers

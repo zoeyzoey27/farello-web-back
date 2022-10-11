@@ -20,7 +20,6 @@ const mongoDataMethods = {
         email: {$regex : email || '', '$options' : 'i'},
         phoneNumber: {$regex : phoneNumber || '', '$options' : 'i'},
         address: {$regex : address || '', '$options' : 'i'},
-        idCard: {$regex : idCard || '', '$options' : 'i'},
       }).limit(take).skip(skip).sort({createdAt: orderBy.createdAt, updatedAt: orderBy.updatedAt})
     },
     getAdminById: async id => await Admin.findById(id),
@@ -70,6 +69,19 @@ const mongoDataMethods = {
       return await ProductsAddedToCart.findByIdAndUpdate(id, {quantity, totalPayment, updatedAt}, {new: true})
     },
     getProductsOrdered: async id => await ProductsOrdered.find({orderId: id}),
+    getAllOrders: async (orderSearchInput, skip, take, orderBy) => {
+      const { orderId, receiverName, address, email, phoneNumber, status, userId } = orderSearchInput
+      return Order.find({
+        orderId: {$regex : orderId || '', '$options' : 'i'},
+        receiverName: {$regex : receiverName || '', '$options' : 'i'},
+        address: {$regex : address || '', '$options' : 'i'},
+        email: {$regex : email || '', '$options' : 'i'},
+        phoneNumber: {$regex : phoneNumber || '', '$options' : 'i'},
+        userId: {$regex : userId || '', '$options' : 'i'},
+        status: status || undefined,
+      }).limit(take).skip(skip).sort({createdAt: orderBy.createdAt, updatedAt: orderBy.updatedAt})
+    },
+    getOrderById: async id => await Order.findById(id),
     registerAdmin: async adminRegisterInput => {
        const { 
          fullName, 
@@ -330,6 +342,7 @@ const mongoDataMethods = {
           transferFee: OrderInput.transferFee,
           totalPayment: OrderInput.totalPayment,
           totalPaymentWithoutShipment: OrderInput.totalPaymentWithoutShipment,
+          cancelReason: OrderInput.cancelReason,
           createdAt: OrderInput.createdAt,
           updatedAt: OrderInput.updatedAt,
        })
@@ -352,10 +365,17 @@ const mongoDataMethods = {
             })
             await newProductOrdered.save()
             productsId.push(newProductOrdered._id.toString())
-            }
+            const oldProduct = await Product.findOne({productId: productsAdded[i].productId})
+            await Product.findOneAndUpdate({productId: productsAdded[i].productId}, {quantity: oldProduct.quantity - productsAdded[i].quantity}, {new: true})
+          }
        }
        newOrder.productsId = productsId
+       await ProductsAddedToCart.remove()
        return await newOrder.save()
+    },
+    updateOrderStatus: async args => {
+      const { id, orderUpdateInput } = args
+      return await Order.findByIdAndUpdate(id, orderUpdateInput, {new: true})
     }
 
 }

@@ -41,6 +41,12 @@ const OrderSchema = new Schema({
     productsId: {
         type: Array
     },
+    cancelReason: {
+        type: String
+    },
+    cancelBy: {
+        type: String
+    },
     createdAt: {
         type: String 
     },

@@ -8,6 +8,10 @@ const typeDefs = gql `
     STOCKING
     OUT_OF_STOCK
   }
+  enum CancelBy {
+    USER
+    ADMIN
+  }
   type User {
     id: ID!,
     userId: String!,
@@ -49,7 +53,6 @@ const typeDefs = gql `
     email: String,
     phoneNumber: String,
     address: String,
-    idCard: String,
   }
   input UserOrderByInput {
     createdAt: Sort,
@@ -288,7 +291,9 @@ const typeDefs = gql `
     transferFee: Int!,
     totalPaymentWithoutShipment: Int!,
     totalPayment: Int!,
-    products: [ProductsOrdered]
+    products: [ProductsOrdered],
+    cancelReason: String,
+    cancelBy: CancelBy,
     createdAt: String!,
     updatedAt: String,
     deletedAt: String,
@@ -307,7 +312,27 @@ const typeDefs = gql `
     totalPaymentWithoutShipment: Int!,
     totalPayment: Int!,
     productsId: [String],
+    cancelReason: String,
     createdAt: String!,
+    updatedAt: String,
+  }
+  input OrderSearchInput {
+    orderId: String,
+    receiverName: String,
+    address: String,
+    email: String,
+    phoneNumber: String,
+    status: String,
+    userId: String,
+  }
+  input OrderSortInput {
+    createdAt: String,
+    updatedAt: String,
+  }
+  input OrderUpdateInput {
+    status: String!,
+    cancelReason: String,
+    cancelBy: CancelBy,
     updatedAt: String,
   }
   type Query {
@@ -322,6 +347,8 @@ const typeDefs = gql `
     bannerImages: [BannerImage]
     bannerImage(id: ID!): BannerImage
     getProductsAddedToCart(userId: ID!): [ProductsAddedToCart]
+    orders(orderSearchInput: OrderSearchInput, skip: Int, take: Int, orderBy: OrderSortInput): [Order]
+    order(id: ID!): Order
   }
   type Mutation {
     registerUser(userRegisterInput: UserRegisterInput): User
@@ -343,6 +370,7 @@ const typeDefs = gql `
     updateCart(id: ID!, quantity: Int!, totalPayment: Int!, updatedAt: String): ProductsAddedToCart
     deleteProductFromCart(id: ID!): Boolean
     createOrder(orderInput: OrderInput!): Order
+    updateOrderStatus(id: ID!, orderUpdateInput: OrderUpdateInput!): Order
   }
 `
 module.exports = typeDefs
