@@ -6,9 +6,11 @@ const User = require('../models/User')
 const ProductsAddedToCart = require('../models/ProductsAddedToCart')
 const ProductsOrdered = require('../models/ProductsOrdered')
 const Order = require('../models/Order')
+const PostCategory = require('../models/PostCategory')
 const { ApolloError } = require('apollo-server-errors')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
+const Post = require('../models/Post')
 
 const mongoDataMethods = {
     getUserById: async id => await User.findById(id),
@@ -82,6 +84,25 @@ const mongoDataMethods = {
       }).limit(take).skip(skip).sort({createdAt: orderBy.createdAt, updatedAt: orderBy.updatedAt})
     },
     getOrderById: async id => await Order.findById(id),
+    getPostCategories: async (skip, take, orderBy) => {
+      return PostCategory.find().limit(take).skip(skip).sort({createdAt: orderBy.createdAt, updatedAt: orderBy.updatedAt})
+    },
+    getPostCategoryById: async id => await PostCategory.findById(id),
+    getPostById: async id => await Post.findById(id),
+    getPosts: async (postSearchInput, skip, take, orderBy) => {
+      const { categoryId, title, adminId, postId, } = postSearchInput
+      return Post.find({
+        adminId: {$regex : adminId || '', '$options' : 'i'},
+        categoryId: {$regex : categoryId || '', '$options' : 'i'},
+        title: {$regex : title || '', '$options' : 'i'},
+        postId: {$regex : postId || '', '$options' : 'i'},
+      }).limit(take).skip(skip).sort({createdAt: orderBy.createdAt, updatedAt: orderBy.updatedAt})
+    },
+    getPostsByCategory: async (categoryId) => {
+      return Post.find({
+        categoryId: {$regex : categoryId || '', '$options' : 'i'},
+      })
+    },
     registerAdmin: async adminRegisterInput => {
        const { 
          fullName, 
@@ -376,7 +397,47 @@ const mongoDataMethods = {
     updateOrderStatus: async args => {
       const { id, orderUpdateInput } = args
       return await Order.findByIdAndUpdate(id, orderUpdateInput, {new: true})
-    }
+    },
+    createPostCategory: async postCategoryInput => {
+      const { categoryId, title, createdAt, updatedAt } = postCategoryInput
+      const newCategory = new PostCategory({
+        categoryId: categoryId,
+        title: title, 
+        createdAt: createdAt,
+        updatedAt: updatedAt,
+      })
+      return await newCategory.save()
+    },
+    createPost: async postInput => {
+      const { postId, categoryId, title, content, adminId, imageKey, createdAt, updatedAt } = postInput
+      const newPost = new Post({
+        postId: postId,
+        content: content,
+        adminId, adminId,
+        categoryId: categoryId,
+        title: title, 
+        imageKey: imageKey,
+        createdAt: createdAt,
+        updatedAt: updatedAt,
+      })
+      return await newPost.save()
+    },
+    updatePostCategory: async args => {
+      const { id, postCategoryUpdateInput } = args
+      return await PostCategory.findByIdAndUpdate(id, postCategoryUpdateInput, {new: true})
+    },
+    deletePostCategory: async id => {
+      await PostCategory.findByIdAndDelete(id)
+      return true
+    },
+    updatePost: async args => {
+      const { id, postUpdateInput } = args
+      return await Post.findByIdAndUpdate(id, postUpdateInput, {new: true})
+    },
+    deletePost: async id => {
+      await Post.findByIdAndDelete(id)
+      return true
+    },
 
 }
 module.exports = mongoDataMethods

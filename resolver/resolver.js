@@ -26,6 +26,14 @@ const resolvers = {
            await mongoDataMethods.getAllOrders(orderSearchInput, skip, take, orderBy),
         order: async (_parent, {id}, {mongoDataMethods}) =>
            await mongoDataMethods.getOrderById(id),
+        postCategories: async (_parent, {skip, take, orderBy}, {mongoDataMethods}) => 
+           await mongoDataMethods.getPostCategories(skip, take, orderBy),
+        postCategory: async (_parent, {id}, {mongoDataMethods}) =>
+           await mongoDataMethods.getPostCategoryById(id),
+        posts: async (_parent, {postSearchInput, skip, take, orderBy}, {mongoDataMethods}) => 
+           await mongoDataMethods.getPosts(postSearchInput, skip, take, orderBy),
+        post: async (_parent, {id}, {mongoDataMethods}) =>
+           await mongoDataMethods.getPostById(id),
     },
     Product: {
         category: async ({categoryId}, _args, {mongoDataMethods}) => {
@@ -50,6 +58,19 @@ const resolvers = {
          return await mongoDataMethods.getProductsOrdered(id)
       }
     },
+    Post: {
+      createdBy: async ({adminId}, _args, {mongoDataMethods}) => {
+         return await mongoDataMethods.getAdminById(adminId)
+      },
+      category: async ({categoryId}, _args, {mongoDataMethods}) => {
+         return await mongoDataMethods.getPostCategoryById(categoryId)
+      },
+    },
+    PostCategory: {
+      posts: async ({id}, _args, {mongoDataMethods}) => {
+         return await mongoDataMethods.getPostsByCategory(id)
+      }
+    },
     Mutation: {
         registerUser: async (_parent, {userRegisterInput}, {mongoDataMethods}) => await mongoDataMethods.registerUser(userRegisterInput),
         loginUser: async (_parent, {loginInput}, {mongoDataMethods}) => await mongoDataMethods.loginUser(loginInput),
@@ -71,6 +92,12 @@ const resolvers = {
         deleteProductFromCart: async (_parent, {id}, {mongoDataMethods}) => await mongoDataMethods.deleteProductFromCart(id),
         createOrder: async (_parent, {orderInput}, {mongoDataMethods}) => await mongoDataMethods.createOrder(orderInput),
         updateOrderStatus: async (_parent, args, {mongoDataMethods}) => await mongoDataMethods.updateOrderStatus(args),
+        createPostCategory: async (_parent, {postCategoryInput}, {mongoDataMethods}) => await mongoDataMethods.createPostCategory(postCategoryInput),
+        createPost: async (_parent, {postInput}, {mongoDataMethods}) => await mongoDataMethods.createPost(postInput),
+        updatePostCategory: async (_parent, args, {mongoDataMethods}) => await mongoDataMethods.updatePostCategory(args),
+        deletePostCategory: async (_parent, {id}, {mongoDataMethods}) => await mongoDataMethods.deletePostCategory(id),
+        updatePost: async (_parent, args, {mongoDataMethods}) => await mongoDataMethods.updatePost(args),
+        deletePost: async (_parent, {id}, {mongoDataMethods}) => await mongoDataMethods.deletePost(id),
     }
 }
 module.exports = resolvers

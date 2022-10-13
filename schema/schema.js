@@ -335,6 +335,69 @@ const typeDefs = gql `
     cancelBy: CancelBy,
     updatedAt: String,
   }
+  type Post {
+    id: ID!,
+    postId: String!,
+    title: String!,
+    category: PostCategory!,
+    content: String!,
+    imageKey: String!,
+    createdBy: Admin,
+    createdAt: String!,
+    updatedAt: String,
+    deletedAt: String
+  }
+  input PostInput {
+    postId: String!,
+    title: String!,
+    categoryId: ID!,
+    content: String!,
+    imageKey: String!,
+    adminId: ID!,
+    createdAt: String!,
+    updatedAt: String,
+    deletedAt: String
+  }
+  input PostUpdateInput {
+    title: String!,
+    categoryId: ID!,
+    content: String!,
+    imageKey: String!,
+    updatedAt: String,
+  }
+  input PostSearchInput {
+    postId: String,
+    title: String,
+    categoryId: ID,
+    adminId: ID,
+  }
+  input PostSortInput {
+    createdAt: String,
+    updatedAt: String,
+  }
+  type PostCategory {
+    id: ID!,
+    categoryId: String!,
+    title: String!,
+    posts: [Post],
+    createdAt: String!,
+    updatedAt: String,
+    deletedAt: String
+  }
+  input PostCategoryInput {
+    categoryId: String!,
+    title: String!,
+    createdAt: String!,
+    updatedAt: String,
+  }
+  input PostCategoryUpdateInput {
+    title: String!,
+    updatedAt: String,
+  }
+  input PostCategorySortInput {
+    createdAt: String,
+    updatedAt: String,
+  }
   type Query {
     users(userInput: UserInput, skip: Int, take: Int, orderBy: UserOrderByInput): [User]
     user(id: ID!): User
@@ -349,6 +412,10 @@ const typeDefs = gql `
     getProductsAddedToCart(userId: ID!): [ProductsAddedToCart]
     orders(orderSearchInput: OrderSearchInput, skip: Int, take: Int, orderBy: OrderSortInput): [Order]
     order(id: ID!): Order
+    postCategories(skip: Int, take: Int, orderBy: PostCategorySortInput): [PostCategory]
+    postCategory(id: ID!): PostCategory
+    posts(postSearchInput: PostSearchInput, skip: Int, take: Int, orderBy: PostSortInput): [Post]
+    post(id: ID!): Post
   }
   type Mutation {
     registerUser(userRegisterInput: UserRegisterInput): User
@@ -371,6 +438,12 @@ const typeDefs = gql `
     deleteProductFromCart(id: ID!): Boolean
     createOrder(orderInput: OrderInput!): Order
     updateOrderStatus(id: ID!, orderUpdateInput: OrderUpdateInput!): Order
+    createPostCategory(postCategoryInput: PostCategoryInput!): PostCategory
+    createPost(postInput: PostInput!): Post
+    updatePost(id: ID!, postUpdateInput: PostUpdateInput!): Post
+    deletePost(id: ID!): Boolean
+    updatePostCategory(id: ID!, postCategoryUpdateInput: PostCategoryUpdateInput!): PostCategory
+    deletePostCategory(id: ID!): Boolean
   }
 `
 module.exports = typeDefs
