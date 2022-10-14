@@ -11,6 +11,7 @@ const { ApolloError } = require('apollo-server-errors')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const Post = require('../models/Post')
+const Comment = require('../models/Comment')
 
 const mongoDataMethods = {
     getUserById: async id => await User.findById(id),
@@ -102,6 +103,11 @@ const mongoDataMethods = {
       return Post.find({
         categoryId: {$regex : categoryId || '', '$options' : 'i'},
       })
+    },
+    comments: async (productId) => {
+      return Comment.find({
+        productId: {$regex : productId || '', '$options' : 'i'},
+      }).sort({createdAt: "desc"})
     },
     registerAdmin: async adminRegisterInput => {
        const { 
@@ -437,6 +443,27 @@ const mongoDataMethods = {
     deletePost: async id => {
       await Post.findByIdAndDelete(id)
       return true
+    },
+    createComment: async commentInput => {
+      const { content, ratePoint, rateDescription, likes, dislikes, userId, productId, createdAt, updatedAt } = commentInput
+      const newComment = new Comment({
+        content: content,
+        ratePoint: ratePoint,
+        rateDescription: rateDescription,
+        likes: likes,
+        dislikes: dislikes, 
+        userId: userId,
+        userLiked: [],
+        userDisLiked: [],
+        productId: productId,
+        createdAt: createdAt,
+        updatedAt: updatedAt,
+      })
+      return await newComment.save()
+    },
+    updateComment: async args => {
+      const { id, commentUpdateInput } = args
+      return await Comment.findByIdAndUpdate(id, commentUpdateInput, {new: true})
     },
 
 }

@@ -38,7 +38,10 @@ const resolvers = {
     Product: {
         category: async ({categoryId}, _args, {mongoDataMethods}) => {
          return await mongoDataMethods.getCategoryById(categoryId)
-        }
+        },
+        comments: async ({id}, _args, {mongoDataMethods}) => {
+         return await mongoDataMethods.comments(id)
+      }
     },
     Category: {
         products: async ({id}, _args, {mongoDataMethods}) => {
@@ -71,6 +74,14 @@ const resolvers = {
          return await mongoDataMethods.getPostsByCategory(id)
       }
     },
+    Comment: {
+      product: async ({productId}, _args, {mongoDataMethods}) => {
+       return await mongoDataMethods.getProductById(productId)
+      },
+      createdBy: async ({userId}, _args, {mongoDataMethods}) => {
+         return await mongoDataMethods.getUserById(userId)
+      },
+    },
     Mutation: {
         registerUser: async (_parent, {userRegisterInput}, {mongoDataMethods}) => await mongoDataMethods.registerUser(userRegisterInput),
         loginUser: async (_parent, {loginInput}, {mongoDataMethods}) => await mongoDataMethods.loginUser(loginInput),
@@ -98,6 +109,8 @@ const resolvers = {
         deletePostCategory: async (_parent, {id}, {mongoDataMethods}) => await mongoDataMethods.deletePostCategory(id),
         updatePost: async (_parent, args, {mongoDataMethods}) => await mongoDataMethods.updatePost(args),
         deletePost: async (_parent, {id}, {mongoDataMethods}) => await mongoDataMethods.deletePost(id),
+        createComment: async (_parent, {commentInput}, {mongoDataMethods}) => await mongoDataMethods.createComment(commentInput),
+        updateComment: async (_parent, args, {mongoDataMethods}) => await mongoDataMethods.updateComment(args),
     }
 }
 module.exports = resolvers

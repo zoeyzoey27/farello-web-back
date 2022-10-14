@@ -135,6 +135,42 @@ const typeDefs = gql `
     email: String!,
     password: String! 
   }
+  type Comment {
+    id: ID!,
+    content: String!,
+    ratePoint: Int!,
+    rateDescription: String!,
+    likes: Int!,
+    dislikes: Int!,
+    createdBy: User!,
+    product: Product,
+    userLiked: [String],
+    userDisLiked: [String],
+    createdAt: String!,
+    updatedAt: String,
+    deletedAt: String,
+  }
+  input CommentInput {
+    content: String!,
+    ratePoint: Int!,
+    rateDescription: String!,
+    likes: Int!,
+    dislikes: Int!,
+    userId: String!,
+    productId: String!,
+    userLiked: [String],
+    userDisLiked: [String],
+    createdAt: String!,
+    updatedAt: String,
+    deletedAt: String,
+  }
+  input CommentUpdateInput {
+    likes: Int,
+    dislikes: Int,
+    userLiked: [String],
+    userDisLiked: [String],
+    updatedAt: String,
+  }
   type Product {
     id: ID!,
     productId: String!,
@@ -148,6 +184,7 @@ const typeDefs = gql `
     description: String,
     category: Category,
     status: Stock,
+    comments: [Comment]
     createdAt: String!,
     updatedAt: String,
     deletedAt: String,
@@ -416,6 +453,7 @@ const typeDefs = gql `
     postCategory(id: ID!): PostCategory
     posts(postSearchInput: PostSearchInput, skip: Int, take: Int, orderBy: PostSortInput): [Post]
     post(id: ID!): Post
+    comments(productId: String!): [Comment]
   }
   type Mutation {
     registerUser(userRegisterInput: UserRegisterInput): User
@@ -444,6 +482,8 @@ const typeDefs = gql `
     deletePost(id: ID!): Boolean
     updatePostCategory(id: ID!, postCategoryUpdateInput: PostCategoryUpdateInput!): PostCategory
     deletePostCategory(id: ID!): Boolean
+    createComment(commentInput: CommentInput!): Comment
+    updateComment(id: ID!, commentUpdateInput: CommentUpdateInput!): Comment
   }
 `
 module.exports = typeDefs
