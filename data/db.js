@@ -12,11 +12,13 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const Post = require('../models/Post')
 const Comment = require('../models/Comment')
+const Inquiry = require('../models/Inquiry')
+const AdminRepInquiry = require('../models/AdminRepInquiry')
 
 const mongoDataMethods = {
     getUserById: async id => await User.findById(id),
     getUsers: async (userInput, skip, take, orderBy) => {
-      const { fullName, email, phoneNumber, address, idCard, userId } = userInput
+      const { fullName, email, phoneNumber, address, userId } = userInput
       return User.find({
         userId: {$regex : userId || '', '$options' : 'i'},
         fullName: {$regex : fullName || '', '$options' : 'i'},
@@ -108,6 +110,21 @@ const mongoDataMethods = {
       return Comment.find({
         productId: {$regex : productId || '', '$options' : 'i'},
       }).sort({createdAt: "desc"})
+    },
+    getInquiries: async (inquirySearchInput, skip, take, orderBy) => {
+      const { fullName, email, phoneNumber, isRead } = inquirySearchInput
+      return Inquiry.find({
+        fullName: {$regex : fullName || '', '$options' : 'i'},
+        email: {$regex : email || '', '$options' : 'i'},
+        phoneNumber: {$regex : phoneNumber || '', '$options' : 'i'},
+        isRead: isRead,
+      }).limit(take).skip(skip).sort({createdAt: orderBy.createdAt, updatedAt: orderBy.updatedAt})
+    },
+    getInquiry: async id => await Inquiry.findById(id),
+    getAdminRepInquiries: async inquiryId => {
+      return AdminRepInquiry.find({
+        userInquiryId: inquiryId || undefined,
+      })
     },
     registerAdmin: async adminRegisterInput => {
        const { 
@@ -237,6 +254,11 @@ const mongoDataMethods = {
     updateUserInfo: async args => {
       const { id, userUpdateInput } = args
       return await User.findByIdAndUpdate(id, userUpdateInput, {new: true})
+    },
+    userResetPassword: async args => {
+      const { id, password } = args
+      const encryptedPassword = await bcrypt.hash(password, 10)
+      return await User.findByIdAndUpdate(id, { password: encryptedPassword }, {new: true})
     },
     deleteUserAccount: async id => {
       await User.findByIdAndDelete(id)
@@ -464,6 +486,34 @@ const mongoDataMethods = {
     updateComment: async args => {
       const { id, commentUpdateInput } = args
       return await Comment.findByIdAndUpdate(id, commentUpdateInput, {new: true})
+    },
+    userCreateInquiry: async inquiryInput => {
+      const newInquiry = new Inquiry({
+        fullName: inquiryInput.fullName,
+        email: inquiryInput.email,
+        phoneNumber: inquiryInput.phoneNumber,
+        content: inquiryInput.content,
+        isRead: inquiryInput.isRead,
+        createdAt: inquiryInput.createdAt,
+        updatedAt: inquiryInput.updatedAt,
+        status: inquiryInput.status
+      })
+      return await newInquiry.save()
+    },
+    adminRepInquiry: async adminRepInquiryInput => {
+      const newInquiry = new AdminRepInquiry({
+        userInquiryId: adminRepInquiryInput.userInquiryId,
+        content: adminRepInquiryInput.content,
+        adminId: adminRepInquiryInput.adminId,
+        createdAt: adminRepInquiryInput.createdAt,
+        updatedAt: adminRepInquiryInput.updatedAt,
+        status: adminRepInquiryInput.status
+      })
+      return await newInquiry.save()
+    },
+    updateStatusInquiry: async args => {
+      const { id, isRead, updatedAt } = args
+      return await Inquiry.findByIdAndUpdate(id, {isRead, updatedAt}, {new: true})
     },
 
 }

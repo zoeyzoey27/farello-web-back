@@ -34,6 +34,12 @@ const resolvers = {
            await mongoDataMethods.getPosts(postSearchInput, skip, take, orderBy),
         post: async (_parent, {id}, {mongoDataMethods}) =>
            await mongoDataMethods.getPostById(id),
+        getInquiries: async (_parent, {inquirySearchInput, skip, take, orderBy}, {mongoDataMethods}) => 
+           await mongoDataMethods.getInquiries(inquirySearchInput, skip, take, orderBy),
+        getInquiry: async (_parent, {id}, {mongoDataMethods}) =>
+           await mongoDataMethods.getInquiry(id),
+        getAdminRepInquiries: async (_parent, {id}, {mongoDataMethods}) =>
+           await mongoDataMethods.getAdminRepInquiries(id),
     },
     Product: {
         category: async ({categoryId}, _args, {mongoDataMethods}) => {
@@ -82,10 +88,24 @@ const resolvers = {
          return await mongoDataMethods.getUserById(userId)
       },
     },
+    Inquiry: {
+      adminRepInquiry: async ({id}, _args, {mongoDataMethods}) => {
+         return await mongoDataMethods.getAdminRepInquiries(id)
+      }
+    },
+    AdminRepInquiry: {
+      createdBy: async ({adminId}, _args, {mongoDataMethods}) => {
+         return await mongoDataMethods.getAdminById(adminId)
+      },
+      userInquiry: async ({userInquiryId}, _args, {mongoDataMethods}) => {
+         return await mongoDataMethods.getInquiry(userInquiryId)
+      },
+    },
     Mutation: {
         registerUser: async (_parent, {userRegisterInput}, {mongoDataMethods}) => await mongoDataMethods.registerUser(userRegisterInput),
         loginUser: async (_parent, {loginInput}, {mongoDataMethods}) => await mongoDataMethods.loginUser(loginInput),
         updateUserInfo: async (_parent, args, {mongoDataMethods}) => await mongoDataMethods.updateUserInfo(args),
+        userResetPassword: async (_parent, args, {mongoDataMethods}) => await mongoDataMethods.userResetPassword(args),
         deleteUserAccount: async (_parent, {id}, {mongoDataMethods}) => await mongoDataMethods.deleteUserAccount(id),
         registerAdmin: async (_parent, {adminRegisterInput}, {mongoDataMethods}) => await mongoDataMethods.registerAdmin(adminRegisterInput),
         updateAdmin: async (_parent, args, {mongoDataMethods}) => await mongoDataMethods.updateAdmin(args),
@@ -111,6 +131,9 @@ const resolvers = {
         deletePost: async (_parent, {id}, {mongoDataMethods}) => await mongoDataMethods.deletePost(id),
         createComment: async (_parent, {commentInput}, {mongoDataMethods}) => await mongoDataMethods.createComment(commentInput),
         updateComment: async (_parent, args, {mongoDataMethods}) => await mongoDataMethods.updateComment(args),
+        userCreateInquiry: async (_parent, {inquiryInput}, {mongoDataMethods}) => await mongoDataMethods.userCreateInquiry(inquiryInput),
+        adminRepInquiry: async (_parent, {adminRepInquiryInput}, {mongoDataMethods}) => await mongoDataMethods.adminRepInquiry(adminRepInquiryInput),
+        updateStatusInquiry: async (_parent, args, {mongoDataMethods}) => await mongoDataMethods.updateStatusInquiry(args),
     }
 }
 module.exports = resolvers

@@ -12,6 +12,10 @@ const typeDefs = gql `
     USER
     ADMIN
   }
+  input OrderByInputByTime {
+    createdAt: Sort,
+    updatedAt: Sort
+  }
   type User {
     id: ID!,
     userId: String!,
@@ -54,10 +58,6 @@ const typeDefs = gql `
     phoneNumber: String,
     address: String,
   }
-  input UserOrderByInput {
-    createdAt: Sort,
-    updatedAt: Sort
-  }
   input UserUpdateInput {
     fullName: String!,
     email: String!,
@@ -97,10 +97,6 @@ const typeDefs = gql `
     phoneNumber: String,
     address: String,
     idCard: String,
-  }
-  input AdminOrderByInput {
-    createdAt: Sort,
-    updatedAt: Sort
   }
   input AdminRegisterInput {
     adminId: String!,
@@ -264,10 +260,6 @@ const typeDefs = gql `
     categoryId: String,
     name: String,
   }
-  input CategoryOrderByInput {
-    createdAt: Sort,
-    updatedAt: Sort
-  }
   type BannerImage {
     id: ID!,
     urlImage: String!
@@ -362,10 +354,6 @@ const typeDefs = gql `
     status: String,
     userId: String,
   }
-  input OrderSortInput {
-    createdAt: String,
-    updatedAt: String,
-  }
   input OrderUpdateInput {
     status: String!,
     cancelReason: String,
@@ -408,10 +396,6 @@ const typeDefs = gql `
     categoryId: ID,
     adminId: ID,
   }
-  input PostSortInput {
-    createdAt: String,
-    updatedAt: String,
-  }
   type PostCategory {
     id: ID!,
     categoryId: String!,
@@ -431,34 +415,79 @@ const typeDefs = gql `
     title: String!,
     updatedAt: String,
   }
-  input PostCategorySortInput {
-    createdAt: String,
+  type Inquiry {
+    id: ID!,
+    fullName: String!,
+    email: String!,
+    phoneNumber: String!,
+    content: String!,
+    isRead: Boolean!,
+    adminRepInquiry: [AdminRepInquiry],
+    createdAt: String!,
     updatedAt: String,
+    deletedAt: String,
+  }
+  input InquiryInput {
+    fullName: String!,
+    email: String!,
+    phoneNumber: String!,
+    content: String!,
+    isRead: Boolean!,
+    createdAt: String!,
+    updatedAt: String,
+    deletedAt: String,
+  }
+  input InquirySearchInput {
+    fullName: String,
+    email: String,
+    phoneNumber: String,
+    isRead: Boolean,
+  }
+  type AdminRepInquiry {
+    id: ID!,
+    userInquiry: Inquiry!,
+    content: String!,
+    createdBy: Admin,
+    createdAt: String!,
+    updatedAt: String,
+    deletedAt: String,
+  }
+  input AdminRepInquiryInput {
+    userInquiryId: String!,
+    content: String!,
+    adminId: String!,
+    createdAt: String!,
+    updatedAt: String,
+    deletedAt: String,
   }
   type Query {
-    users(userInput: UserInput, skip: Int, take: Int, orderBy: UserOrderByInput): [User]
+    users(userInput: UserInput, skip: Int, take: Int, orderBy: OrderByInputByTime): [User]
     user(id: ID!): User
-    admins(adminInput: AdminInput, skip: Int, take: Int, orderBy: AdminOrderByInput): [Admin]
+    admins(adminInput: AdminInput, skip: Int, take: Int, orderBy: OrderByInputByTime): [Admin]
     admin(id: ID!): Admin
     products(productSearchInput: ProductSearchInput, skip: Int, take: Int, orderBy: ProductOrderByInput): [Product]
     product(id: ID!): Product
-    categories(categorySearchInput: CategorySearchInput, skip: Int, take: Int, orderBy: CategoryOrderByInput): [Category]
+    categories(categorySearchInput: CategorySearchInput, skip: Int, take: Int, orderBy: OrderByInputByTime): [Category]
     category(id: ID!): Category
     bannerImages: [BannerImage]
     bannerImage(id: ID!): BannerImage
     getProductsAddedToCart(userId: ID!): [ProductsAddedToCart]
-    orders(orderSearchInput: OrderSearchInput, skip: Int, take: Int, orderBy: OrderSortInput): [Order]
+    orders(orderSearchInput: OrderSearchInput, skip: Int, take: Int, orderBy: OrderByInputByTime): [Order]
     order(id: ID!): Order
-    postCategories(skip: Int, take: Int, orderBy: PostCategorySortInput): [PostCategory]
+    postCategories(skip: Int, take: Int, orderBy: OrderByInputByTime): [PostCategory]
     postCategory(id: ID!): PostCategory
-    posts(postSearchInput: PostSearchInput, skip: Int, take: Int, orderBy: PostSortInput): [Post]
+    posts(postSearchInput: PostSearchInput, skip: Int, take: Int, orderBy: OrderByInputByTime): [Post]
     post(id: ID!): Post
     comments(productId: String!): [Comment]
+    getInquiries(inquirySearchInput: InquirySearchInput, skip: Int, take: Int, orderBy: OrderByInputByTime): [Inquiry]
+    getInquiry(id: ID!): Inquiry
+    getAdminRepInquiries(inquiryId: ID!): AdminRepInquiry
   }
   type Mutation {
     registerUser(userRegisterInput: UserRegisterInput): User
     loginUser(loginInput: LoginInput): User
     updateUserInfo(id: ID!, userUpdateInput: UserUpdateInput): User
+    userResetPassword(id: ID!, password: String!): User
     deleteUserAccount(id: ID!): Boolean
     registerAdmin(adminRegisterInput: AdminRegisterInput): Admin
     updateAdmin(id: ID!, adminUpdateInput: AdminUpdateInput): Admin
@@ -484,6 +513,9 @@ const typeDefs = gql `
     deletePostCategory(id: ID!): Boolean
     createComment(commentInput: CommentInput!): Comment
     updateComment(id: ID!, commentUpdateInput: CommentUpdateInput!): Comment
+    userCreateInquiry(inquiryInput: InquiryInput): Inquiry
+    updateStatusInquiry(id: ID!, isRead: Boolean!, updatedAt: String): Inquiry
+    adminRepInquiry(adminRepInquiryInput: AdminRepInquiryInput): AdminRepInquiry
   }
 `
 module.exports = typeDefs
